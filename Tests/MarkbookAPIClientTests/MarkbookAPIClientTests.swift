@@ -2,6 +2,7 @@
 // MarkbookAPITests
 
 import Testing
+import Foundation
 @testable import MarkbookAPI
 
 // MARK: - Shared Test Support
