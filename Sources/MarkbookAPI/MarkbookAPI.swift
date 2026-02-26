@@ -1,5 +1,3 @@
-// The Swift Programming Language
-// https://docs.swift.org/swift-book
 // MarkbookAPIClient.swift
 // Markbook Online REST API v1.5
 // https://smpcsonline.com.au/markbook/api/v1.5
@@ -8,7 +6,7 @@ import Foundation
 
 // MARK: - Errors
 
-enum MarkbookAPIError: Error, LocalizedError {
+public enum MarkbookAPIError: Error, LocalizedError {
     /// The server returned a non-2xx HTTP status code.
     case httpError(statusCode: Int)
     /// The API returned a non-OKAY status in the response body.
@@ -20,7 +18,7 @@ enum MarkbookAPIError: Error, LocalizedError {
     /// The session could not be established or refreshed.
     case authenticationFailed(underlying: Error)
 
-    var errorDescription: String? {
+    public var errorDescription: String? {
         switch self {
         case .httpError(let code):
             return "HTTP error: \(code)"
@@ -40,7 +38,7 @@ enum MarkbookAPIError: Error, LocalizedError {
 
 /// Defines the full surface area of the Markbook Online API client.
 /// Conform a mock to this protocol to enable unit testing without network calls.
-protocol MarkbookAPIClientProtocol {
+public protocol MarkbookAPIClientProtocol {
     func markbookList() async throws -> MarkbookListResponse
     func userList() async throws -> UserListResponse
     func getMarkbook(key: Int) async throws -> GetMarkbookResponse
@@ -104,6 +102,8 @@ protocol MarkbookAPIClientProtocol {
 /// re-authenticates before any call that would use an expired session.
 ///
 /// ```swift
+/// import MarkbookAPI
+///
 /// let client = MarkbookAPIClient(
 ///     apiKey: "YOUR_32_CHAR_API_KEY",
 ///     username: "adminuser",
@@ -111,7 +111,7 @@ protocol MarkbookAPIClientProtocol {
 /// )
 /// let markbooks = try await client.markbookList()
 /// ```
-actor MarkbookAPIClient: MarkbookAPIClientProtocol {
+public actor MarkbookAPIClient: MarkbookAPIClientProtocol {
 
     // MARK: - Private State
 
@@ -140,7 +140,7 @@ actor MarkbookAPIClient: MarkbookAPIClientProtocol {
     ///   - password: Password for the above user.
     ///   - baseURL: Override only for testing. Defaults to the production endpoint.
     ///   - urlSession: Override to inject a mock session for testing.
-    init(
+    public init(
         apiKey: String,
         username: String,
         password: String,
@@ -158,14 +158,14 @@ actor MarkbookAPIClient: MarkbookAPIClientProtocol {
     // MARK: - Public API Methods
 
     /// Returns the list of all markbooks in the school database.
-    func markbookList() async throws -> MarkbookListResponse {
+    public func markbookList() async throws -> MarkbookListResponse {
         try await get(queryItems: [
             .init(name: "action", value: APIAction.markbookList.rawValue)
         ])
     }
 
     /// Returns the list of all users in the school database.
-    func userList() async throws -> UserListResponse {
+    public func userList() async throws -> UserListResponse {
         try await get(queryItems: [
             .init(name: "action", value: APIAction.userList.rawValue)
         ])
@@ -173,7 +173,7 @@ actor MarkbookAPIClient: MarkbookAPIClientProtocol {
 
     /// Returns the full contents of a markbook, with per-student result arrays.
     /// - Parameter key: The markbook key from ``markbookList()``.
-    func getMarkbook(key: Int) async throws -> GetMarkbookResponse {
+    public func getMarkbook(key: Int) async throws -> GetMarkbookResponse {
         try await get(queryItems: [
             .init(name: "action", value: APIAction.getMarkbook.rawValue),
             .init(name: "key", value: String(key))
@@ -182,7 +182,7 @@ actor MarkbookAPIClient: MarkbookAPIClientProtocol {
 
     /// Returns the full contents of a markbook in the flat alternate format.
     /// - Parameter key: The markbook key from ``markbookList()``.
-    func getMarkbookAlt(key: Int) async throws -> GetMarkbookAltResponse {
+    public func getMarkbookAlt(key: Int) async throws -> GetMarkbookAltResponse {
         try await get(queryItems: [
             .init(name: "action", value: APIAction.getMarkbookAlt.rawValue),
             .init(name: "key", value: String(key))
@@ -191,7 +191,7 @@ actor MarkbookAPIClient: MarkbookAPIClientProtocol {
 
     /// Returns outcome levels for all students in a markbook.
     /// - Parameter key: The markbook key from ``markbookList()``.
-    func getOutcomes(key: Int) async throws -> GetOutcomesResponse {
+    public func getOutcomes(key: Int) async throws -> GetOutcomesResponse {
         try await get(queryItems: [
             .init(name: "action", value: APIAction.getOutcomes.rawValue),
             .init(name: "key", value: String(key))
@@ -200,7 +200,7 @@ actor MarkbookAPIClient: MarkbookAPIClientProtocol {
 
     /// Returns outcome levels in the flat alternate format.
     /// - Parameter key: The markbook key from ``markbookList()``.
-    func getOutcomesAlt(key: Int) async throws -> GetOutcomesAltResponse {
+    public func getOutcomesAlt(key: Int) async throws -> GetOutcomesAltResponse {
         try await get(queryItems: [
             .init(name: "action", value: APIAction.getOutcomesAlt.rawValue),
             .init(name: "key", value: String(key))
@@ -216,7 +216,7 @@ actor MarkbookAPIClient: MarkbookAPIClientProtocol {
     ///   - taskKey: The task key from the markbook's `tasklist`.
     ///   - taskName: The task name from the markbook's `tasklist`.
     ///   - result: The result value to record.
-    func putStudentResult(
+    public func putStudentResult(
         markbookKey: Int,
         studentKey: Int,
         sid: String,
@@ -249,7 +249,7 @@ actor MarkbookAPIClient: MarkbookAPIClientProtocol {
     ///   - gender: Student gender.
     ///   - classKey: The class key from ``getMarkbook(key:)`` or ``getMarkbookAlt(key:)``.
     /// - Returns: The response containing the new student's key.
-    func createStudent(
+    public func createStudent(
         markbookKey: Int,
         sid: String,
         familyName: String,
@@ -281,7 +281,7 @@ actor MarkbookAPIClient: MarkbookAPIClientProtocol {
     ///   - givenName: Student given name.
     ///   - preferredName: Student preferred name (may be empty).
     ///   - gender: Student gender.
-    func updateStudent(
+    public func updateStudent(
         markbookKey: Int,
         studentKey: Int,
         sid: String,
@@ -313,7 +313,7 @@ actor MarkbookAPIClient: MarkbookAPIClientProtocol {
     ///   - studentKey: The student key from ``getMarkbook(key:)`` or ``getMarkbookAlt(key:)``.
     ///   - sid: The student ID from the same source as `studentKey`.
     ///   - classKey: The destination class key.
-    func updateStudentClass(
+    public func updateStudentClass(
         markbookKey: Int,
         studentKey: Int,
         sid: String,
@@ -332,13 +332,14 @@ actor MarkbookAPIClient: MarkbookAPIClientProtocol {
     }
 
     /// Soft-deletes a student from a markbook.
-    /// The student remains in the database and can be restored via ``updateStudentClass(markbookKey:studentKey:sid:classKey:)``.
+    /// The student remains in the database and can be restored via
+    /// ``updateStudentClass(markbookKey:studentKey:sid:classKey:)``.
     ///
     /// - Parameters:
     ///   - markbookKey: The markbook key from ``markbookList()``.
     ///   - studentKey: The student key from ``getMarkbook(key:)`` or ``getMarkbookAlt(key:)``.
     ///   - sid: The student ID from the same source as `studentKey`.
-    func deleteStudent(
+    public func deleteStudent(
         markbookKey: Int,
         studentKey: Int,
         sid: String
@@ -362,7 +363,7 @@ actor MarkbookAPIClient: MarkbookAPIClientProtocol {
     ///   - teacherFamilyName: The class teacher's family name.
     ///   - teacherGivenName: The class teacher's given name.
     /// - Returns: The response containing the new class key.
-    func createClass(
+    public func createClass(
         markbookKey: Int,
         name: String,
         teacherFamilyName: String,
@@ -382,7 +383,7 @@ actor MarkbookAPIClient: MarkbookAPIClientProtocol {
     /// Only one backup can be scheduled per day; a second call replaces the first.
     ///
     /// - Parameter matching: A substring filter (minimum 2 characters) applied to markbook names.
-    func scheduleBackup(matching: String) async throws {
+    public func scheduleBackup(matching: String) async throws {
         guard matching.count >= 2 else {
             throw MarkbookAPIError.invalidBackupMatchingParameter
         }
@@ -403,7 +404,7 @@ actor MarkbookAPIClient: MarkbookAPIClientProtocol {
     /// - Returns: The full response, including the `url` and `status`.
     ///   Check `status` for `.errorPending` (backup not yet ready) or `.errorNoBackup`
     ///   (no backup has been scheduled).
-    func getBackupURL() async throws -> GetBackupURLResponse {
+    public func getBackupURL() async throws -> GetBackupURLResponse {
         try await get(queryItems: [
             .init(name: "action", value: APIAction.getBackupURL.rawValue)
         ])
@@ -414,7 +415,7 @@ actor MarkbookAPIClient: MarkbookAPIClientProtocol {
     /// - Parameter request: The fully populated ``CreateMarkbookRequest``.
     ///   Build it with the local class/student keys starting from 1.
     /// - Returns: The response containing the new markbook key and actual name used.
-    func createMarkbook(_ request: CreateMarkbookRequest) async throws -> CreateMarkbookResponse {
+    public func createMarkbook(_ request: CreateMarkbookRequest) async throws -> CreateMarkbookResponse {
         try await post(action: APIAction.createMarkbook.rawValue, body: request)
     }
 
@@ -444,7 +445,7 @@ actor MarkbookAPIClient: MarkbookAPIClientProtocol {
     }
 
     private func performAuthentication() async throws -> AuthenticationResponse {
-        let authURL = baseURL.appendingPathComponent("authenticate.lc",  isDirectory: false)
+        let authURL = baseURL.appendingPathComponent("authenticate.lc", isDirectory: false)
 
         var components = URLComponents()
         components.queryItems = [
@@ -534,7 +535,7 @@ actor MarkbookAPIClient: MarkbookAPIClientProtocol {
 
         let decoded = try decoder.decode(T.self, from: data)
 
-        // For any response type that carries a status field, surface API-level errors.
+        // Surface API-level errors uniformly for any response type that carries a status.
         if let statusCarrier = decoded as? any StatusCarrying, !statusCarrier.status.isOkay {
             throw MarkbookAPIError.apiError(statusCarrier.status)
         }
@@ -545,7 +546,7 @@ actor MarkbookAPIClient: MarkbookAPIClientProtocol {
 
 // MARK: - StatusCarrying
 
-/// Internal protocol used to extract `status` from any response type for uniform error checking.
+/// Internal protocol used to extract `status` from any response type for uniform error surfacing.
 private protocol StatusCarrying {
     var status: APIStatus { get }
 }

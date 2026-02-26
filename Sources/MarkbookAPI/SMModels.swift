@@ -4,82 +4,64 @@
 
 import Foundation
 
-// MARK: - Base Response
-
-/// The common envelope returned by every API endpoint.
-struct APIResponse: Decodable {
-    let source: String
-    let api: String
-    /// Unix timestamp of the response.
-    let seconds: Int
-    let date: String
-    let schoolName: String
-    let action: APIAction
-    let status: APIStatus
-
-    enum CodingKeys: String, CodingKey {
-        case source, api, seconds, date, action, status
-        case schoolName = "schoolname"
-    }
-}
-
 // MARK: - Enumerations
 
 /// All supported API actions.
-enum APIAction: String, Codable {
+public enum APIAction: String, Codable, Sendable {
     case authentication
-    case markbookList     = "markbooklist"
-    case userList         = "userlist"
-    case getMarkbook      = "getmarkbook"
-    case getMarkbookAlt   = "getmarkbookalt"
-    case getOutcomes      = "getoutcomes"
-    case getOutcomesAlt   = "getoutcomesalt"
-    case putStudentResult = "putstudentresult"
-    case createStudent    = "createstudent"
-    case updateStudent    = "updatestudent"
-    case updateStudentClass = "updatestudentclass"
-    case deleteStudent    = "deletestudent"
-    case createClass      = "createclass"
-    case scheduleBackup   = "schedulebackup"
-    case getBackupURL     = "getbackupurl"
-    case createMarkbook   = "createmarkbook"
+    case markbookList        = "markbooklist"
+    case userList            = "userlist"
+    case getMarkbook         = "getmarkbook"
+    case getMarkbookAlt      = "getmarkbookalt"
+    case getOutcomes         = "getoutcomes"
+    case getOutcomesAlt      = "getoutcomesalt"
+    case putStudentResult    = "putstudentresult"
+    case createStudent       = "createstudent"
+    case updateStudent       = "updatestudent"
+    case updateStudentClass  = "updatestudentclass"
+    case deleteStudent       = "deletestudent"
+    case createClass         = "createclass"
+    case scheduleBackup      = "schedulebackup"
+    case getBackupURL        = "getbackupurl"
+    case createMarkbook      = "createmarkbook"
 }
 
-/// The status string returned with every response.
-/// Backup-specific error states are represented as separate cases.
-enum APIStatus: Decodable, Equatable {
+/// The status string returned with every API response.
+/// Backup-specific error states are represented as dedicated cases.
+public enum APIStatus: Decodable, Equatable, Sendable {
     case okay
     case errorPending
     case errorNoBackup
     case error(String)
 
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let raw = try decoder.singleValueContainer().decode(String.self)
         switch raw {
-        case "OKAY":              self = .okay
-        case "ERROR:pending":    self = .errorPending
-        case "ERROR:no backup":  self = .errorNoBackup
-        default:                 self = .error(raw)
+        case "OKAY":             self = .okay
+        case "ERROR:pending":   self = .errorPending
+        case "ERROR:no backup": self = .errorNoBackup
+        default:                self = .error(raw)
         }
     }
 
-    var isOkay: Bool { self == .okay }
+    /// `true` only when the status is `.okay`.
+    public var isOkay: Bool { self == .okay }
 }
 
-/// Student gender value used in create / update calls.
-enum Gender: String, Codable {
+/// Student gender value used in create and update calls.
+public enum Gender: String, Codable, Sendable {
     case male, female, other
 }
 
 // MARK: - Shared Sub-models
 
-struct MarkbookClass: Codable {
-    let key: Int
-    let name: String
+public struct MarkbookClass: Codable, Sendable {
+    public let key: Int
+    public let name: String
     /// Teacher family name.
-    let teacherName1: String
+    public let teacherName1: String
     /// Teacher given name.
-    let teacherName2: String
+    public let teacherName2: String
 
     enum CodingKeys: String, CodingKey {
         case key, name
@@ -88,11 +70,11 @@ struct MarkbookClass: Codable {
     }
 }
 
-struct MarkbookTask: Codable {
-    let key: Int
-    let name: String
-    let maximum: Int
-    let decimalPlaces: Int
+public struct MarkbookTask: Codable, Sendable {
+    public let key: Int
+    public let name: String
+    public let maximum: Int
+    public let decimalPlaces: Int
 
     enum CodingKeys: String, CodingKey {
         case key, name, maximum
@@ -100,57 +82,26 @@ struct MarkbookTask: Codable {
     }
 }
 
-// MARK: - Authentication
-
-/// Response returned after a successful POST to `authenticate.lc`.
-struct AuthenticationResponse: Decodable {
-    let source: String
-    let api: String
-    let seconds: Int
-    let date: String
-    let schoolName: String
-    let action: APIAction
-    let status: APIStatus
-    /// 16-character session token. Required for all subsequent calls.
-    let sessionToken: String
-    /// Random numeric session key. Required for all subsequent calls.
-    let sessionKey: Int
-
-    enum CodingKeys: String, CodingKey {
-        case source, api, seconds, date, action, status
-        case schoolName  = "schoolname"
-        case sessionToken = "sessiontoken"
-        case sessionKey   = "sessionkey"
-    }
-}
-
-/// Convenience container for the credentials needed by every API call after authentication.
-struct SessionCredentials {
-    let sessionToken: String
-    let sessionKey: Int
-    let apiKey: String
-}
-
 // MARK: - markbooklist
 
 /// A lightweight markbook summary returned by the `markbooklist` action.
-struct MarkbookSummary: Codable {
-    let key: Int
-    let name: String
-    let owner: String
-    let year: String
-    let course: String
+public struct MarkbookSummary: Codable, Sendable {
+    public let key: Int
+    public let name: String
+    public let owner: String
+    public let year: String
+    public let course: String
 }
 
-struct MarkbookListResponse: Decodable {
-    let source: String
-    let api: String
-    let seconds: Int
-    let date: String
-    let schoolName: String
-    let action: APIAction
-    let status: APIStatus
-    let list: [MarkbookSummary]
+public struct MarkbookListResponse: Decodable, Sendable {
+    public let source: String
+    public let api: String
+    public let seconds: Int
+    public let date: String
+    public let schoolName: String
+    public let action: APIAction
+    public let status: APIStatus
+    public let list: [MarkbookSummary]
 
     enum CodingKeys: String, CodingKey {
         case source, api, seconds, date, action, status, list
@@ -160,11 +111,11 @@ struct MarkbookListResponse: Decodable {
 
 // MARK: - userlist
 
-struct User: Codable {
-    let key: Int
-    let name: String
-    let loginID: String
-    let email: String
+public struct User: Codable, Sendable {
+    public let key: Int
+    public let name: String
+    public let loginID: String
+    public let email: String
 
     enum CodingKeys: String, CodingKey {
         case key, name, email
@@ -172,15 +123,15 @@ struct User: Codable {
     }
 }
 
-struct UserListResponse: Decodable {
-    let source: String
-    let api: String
-    let seconds: Int
-    let date: String
-    let schoolName: String
-    let action: APIAction
-    let status: APIStatus
-    let list: [User]
+public struct UserListResponse: Decodable, Sendable {
+    public let source: String
+    public let api: String
+    public let seconds: Int
+    public let date: String
+    public let schoolName: String
+    public let action: APIAction
+    public let status: APIStatus
+    public let list: [User]
 
     enum CodingKeys: String, CodingKey {
         case source, api, seconds, date, action, status, list
@@ -191,18 +142,76 @@ struct UserListResponse: Decodable {
 // MARK: - getmarkbook
 
 /// A student record including per-task result arrays (standard format).
-struct StudentWithResults: Decodable {
-    let key: Int
-    let studentID: String
-    let familyName: String
-    let givenName: String
-    let preferredName: String
-    let classKey: Int
-    let className: String
+public struct StudentWithResults: Decodable, Sendable {
+    public let key: Int
+    public let studentID: String
+    public let familyName: String
+    public let givenName: String
+    public let preferredName: String
+    public let classKey: Int
+    public let className: String
     /// Raw result strings in the same order as the parent `tasklist`.
-    let rawResults: [String]
+    public let rawResults: [String]
     /// Rounded result strings in the same order as the parent `tasklist`.
-    let roundedResults: [String]
+    public let roundedResults: [String]
+
+    enum CodingKeys: String, CodingKey {
+        case key
+        case studentID      = "studentid"
+        case familyName     = "familyname"
+        case givenName      = "givename"
+        case preferredName  = "preferredname"
+        case classKey       = "classkey"
+        case className      = "classname"
+        case rawResults     = "rawresults"
+        case roundedResults = "roundedresults"
+    }
+}
+
+public struct GetMarkbookResponse: Decodable, Sendable {
+    public let source: String
+    public let api: String
+    public let seconds: Int
+    public let date: String
+    public let schoolName: String
+    public let action: APIAction
+    public let status: APIStatus
+    public let markbookKey: Int
+    public let markbookName: String
+    public let markbookYear: String
+    public let markbookCourse: String
+    public let ownerKey: Int
+    public let shareList: [Int]
+    public let classList: [MarkbookClass]
+    public let taskList: [MarkbookTask]
+    public let studentList: [StudentWithResults]
+
+    enum CodingKeys: String, CodingKey {
+        case source, api, seconds, date, action, status
+        case schoolName     = "schoolname"
+        case markbookKey    = "markbookkey"
+        case markbookName   = "markbookname"
+        case markbookYear   = "markbookyear"
+        case markbookCourse = "markbookcourse"
+        case ownerKey       = "ownerkey"
+        case shareList      = "sharelist"
+        case classList      = "classlist"
+        case taskList       = "tasklist"
+        case studentList    = "studentlist"
+    }
+}
+
+// MARK: - getmarkbookalt
+
+/// A student record without embedded result arrays (used in the alternate format).
+public struct Student: Codable, Sendable {
+    public let key: Int
+    public let studentID: String
+    public let familyName: String
+    public let givenName: String
+    public let preferredName: String
+    public let classKey: Int
+    public let className: String
 
     enum CodingKeys: String, CodingKey {
         case key
@@ -212,73 +221,15 @@ struct StudentWithResults: Decodable {
         case preferredName = "preferredname"
         case classKey      = "classkey"
         case className     = "classname"
-        case rawResults    = "rawresults"
-        case roundedResults = "roundedresults"
-    }
-}
-
-struct GetMarkbookResponse: Decodable {
-    let source: String
-    let api: String
-    let seconds: Int
-    let date: String
-    let schoolName: String
-    let action: APIAction
-    let status: APIStatus
-    let markbookKey: Int
-    let markbookName: String
-    let markbookYear: String
-    let markbookCourse: String
-    let ownerKey: Int
-    let shareList: [Int]
-    let classList: [MarkbookClass]
-    let taskList: [MarkbookTask]
-    let studentList: [StudentWithResults]
-
-    enum CodingKeys: String, CodingKey {
-        case source, api, seconds, date, action, status
-        case schoolName    = "schoolname"
-        case markbookKey   = "markbookkey"
-        case markbookName  = "markbookname"
-        case markbookYear  = "markbookyear"
-        case markbookCourse = "markbookcourse"
-        case ownerKey      = "ownerkey"
-        case shareList     = "sharelist"
-        case classList     = "classlist"
-        case taskList      = "tasklist"
-        case studentList   = "studentlist"
-    }
-}
-
-// MARK: - getmarkbookalt
-
-/// A student record without result arrays (used in the alternate format).
-struct Student: Codable {
-    let key: Int
-    let studentID: String
-    let familyName: String
-    let givenName: String
-    let preferredName: String
-    let classKey: Int
-    let className: String
-
-    enum CodingKeys: String, CodingKey {
-        case key
-        case studentID   = "studentid"
-        case familyName  = "familyname"
-        case givenName   = "givename"
-        case preferredName = "preferredname"
-        case classKey    = "classkey"
-        case className   = "classname"
     }
 }
 
 /// A single result entry in the flat `resultlist` array.
-struct StudentTaskResult: Decodable {
-    let studentKey: Int
-    let taskKey: Int
-    let rawResult: String
-    let roundedResult: String
+public struct StudentTaskResult: Decodable, Sendable {
+    public let studentKey: Int
+    public let taskKey: Int
+    public let rawResult: String
+    public let roundedResult: String
 
     enum CodingKeys: String, CodingKey {
         case studentKey    = "studentkey"
@@ -288,24 +239,24 @@ struct StudentTaskResult: Decodable {
     }
 }
 
-struct GetMarkbookAltResponse: Decodable {
-    let source: String
-    let api: String
-    let seconds: Int
-    let date: String
-    let schoolName: String
-    let action: APIAction
-    let status: APIStatus
-    let markbookKey: Int
-    let markbookName: String
-    let markbookYear: String
-    let markbookCourse: String
-    let ownerKey: Int
-    let shareList: [Int]
-    let classList: [MarkbookClass]
-    let taskList: [MarkbookTask]
-    let studentList: [Student]
-    let resultList: [StudentTaskResult]
+public struct GetMarkbookAltResponse: Decodable, Sendable {
+    public let source: String
+    public let api: String
+    public let seconds: Int
+    public let date: String
+    public let schoolName: String
+    public let action: APIAction
+    public let status: APIStatus
+    public let markbookKey: Int
+    public let markbookName: String
+    public let markbookYear: String
+    public let markbookCourse: String
+    public let ownerKey: Int
+    public let shareList: [Int]
+    public let classList: [MarkbookClass]
+    public let taskList: [MarkbookTask]
+    public let studentList: [Student]
+    public let resultList: [StudentTaskResult]
 
     enum CodingKeys: String, CodingKey {
         case source, api, seconds, date, action, status
@@ -325,15 +276,15 @@ struct GetMarkbookAltResponse: Decodable {
 
 // MARK: - getoutcomes
 
-struct Outcome: Codable {
-    let key: Int
+public struct Outcome: Codable, Sendable {
+    public let key: Int
     /// Short code for the outcome (may be empty).
-    let code: String
-    let name: String
+    public let code: String
+    public let name: String
     /// Full outcome description.
-    let outcome: String
+    public let outcome: String
     /// Keys of tasks that contribute to this outcome level.
-    let taskList: [Int]
+    public let taskList: [Int]
 
     enum CodingKeys: String, CodingKey {
         case key, code, name, outcome
@@ -342,40 +293,40 @@ struct Outcome: Codable {
 }
 
 /// A student record with per-outcome level strings (standard outcomes format).
-struct StudentWithOutcomes: Decodable {
-    let key: Int
-    let studentID: String
-    let familyName: String
-    let givenName: String
-    let preferredName: String
-    let classKey: Int
-    let className: String
+public struct StudentWithOutcomes: Decodable, Sendable {
+    public let key: Int
+    public let studentID: String
+    public let familyName: String
+    public let givenName: String
+    public let preferredName: String
+    public let classKey: Int
+    public let className: String
     /// Outcome level strings in the same order as the parent `outcomelist`.
-    let outcomeLevels: [String]
+    public let outcomeLevels: [String]
 
     enum CodingKeys: String, CodingKey {
         case key
-        case studentID    = "studentid"
-        case familyName   = "familyname"
-        case givenName    = "givename"
+        case studentID     = "studentid"
+        case familyName    = "familyname"
+        case givenName     = "givename"
         case preferredName = "preferredname"
-        case classKey     = "classkey"
-        case className    = "classname"
+        case classKey      = "classkey"
+        case className     = "classname"
         case outcomeLevels = "outcomelevels"
     }
 }
 
-struct GetOutcomesResponse: Decodable {
-    let source: String
-    let api: String
-    let seconds: Int
-    let date: String
-    let schoolName: String
-    let action: APIAction
-    let status: APIStatus
-    let classList: [MarkbookClass]
-    let outcomeList: [Outcome]
-    let studentList: [StudentWithOutcomes]
+public struct GetOutcomesResponse: Decodable, Sendable {
+    public let source: String
+    public let api: String
+    public let seconds: Int
+    public let date: String
+    public let schoolName: String
+    public let action: APIAction
+    public let status: APIStatus
+    public let classList: [MarkbookClass]
+    public let outcomeList: [Outcome]
+    public let studentList: [StudentWithOutcomes]
 
     enum CodingKeys: String, CodingKey {
         case source, api, seconds, date, action, status
@@ -389,30 +340,30 @@ struct GetOutcomesResponse: Decodable {
 // MARK: - getoutcomesalt
 
 /// A single entry in the flat `levellist` array.
-struct StudentOutcomeLevel: Decodable {
-    let studentKey: Int
-    let outcomeKey: Int
-    let outcomeLevel: String
+public struct StudentOutcomeLevel: Decodable, Sendable {
+    public let studentKey: Int
+    public let outcomeKey: Int
+    public let outcomeLevel: String
 
     enum CodingKeys: String, CodingKey {
-        case studentKey  = "studentkey"
-        case outcomeKey  = "outcomekey"
+        case studentKey   = "studentkey"
+        case outcomeKey   = "outcomekey"
         case outcomeLevel = "outcomelevel"
     }
 }
 
-struct GetOutcomesAltResponse: Decodable {
-    let source: String
-    let api: String
-    let seconds: Int
-    let date: String
-    let schoolName: String
-    let action: APIAction
-    let status: APIStatus
-    let classList: [MarkbookClass]
-    let outcomeList: [Outcome]
-    let studentList: [Student]
-    let levelList: [StudentOutcomeLevel]
+public struct GetOutcomesAltResponse: Decodable, Sendable {
+    public let source: String
+    public let api: String
+    public let seconds: Int
+    public let date: String
+    public let schoolName: String
+    public let action: APIAction
+    public let status: APIStatus
+    public let classList: [MarkbookClass]
+    public let outcomeList: [Outcome]
+    public let studentList: [Student]
+    public let levelList: [StudentOutcomeLevel]
 
     enum CodingKeys: String, CodingKey {
         case source, api, seconds, date, action, status
@@ -425,8 +376,8 @@ struct GetOutcomesAltResponse: Decodable {
 }
 
 // MARK: - Simple status-only responses
-// putstudentresult, updatestudent, updatestudentclass,
-// deletestudent, schedulebackup all share this shape.
+// Used internally for putstudentresult, updatestudent, updatestudentclass,
+// deletestudent, and schedulebackup. Not part of the public API surface.
 
 struct StatusOnlyResponse: Decodable {
     let source: String
@@ -445,16 +396,16 @@ struct StatusOnlyResponse: Decodable {
 
 // MARK: - createstudent
 
-struct CreateStudentResponse: Decodable {
-    let source: String
-    let api: String
-    let seconds: Int
-    let date: String
-    let schoolName: String
-    let action: APIAction
-    let status: APIStatus
+public struct CreateStudentResponse: Decodable, Sendable {
+    public let source: String
+    public let api: String
+    public let seconds: Int
+    public let date: String
+    public let schoolName: String
+    public let action: APIAction
+    public let status: APIStatus
     /// Key of the newly created student.
-    let studentKey: Int
+    public let studentKey: Int
 
     enum CodingKeys: String, CodingKey {
         case source, api, seconds, date, action, status
@@ -465,16 +416,16 @@ struct CreateStudentResponse: Decodable {
 
 // MARK: - createclass
 
-struct CreateClassResponse: Decodable {
-    let source: String
-    let api: String
-    let seconds: Int
-    let date: String
-    let schoolName: String
-    let action: APIAction
-    let status: APIStatus
+public struct CreateClassResponse: Decodable, Sendable {
+    public let source: String
+    public let api: String
+    public let seconds: Int
+    public let date: String
+    public let schoolName: String
+    public let action: APIAction
+    public let status: APIStatus
     /// Key of the newly created class.
-    let classKey: Int
+    public let classKey: Int
 
     enum CodingKeys: String, CodingKey {
         case source, api, seconds, date, action, status
@@ -485,16 +436,16 @@ struct CreateClassResponse: Decodable {
 
 // MARK: - getbackupurl
 
-struct GetBackupURLResponse: Decodable {
-    let source: String
-    let api: String
-    let seconds: Int
-    let date: String
-    let schoolName: String
-    let action: APIAction
-    let status: APIStatus
+public struct GetBackupURLResponse: Decodable, Sendable {
+    public let source: String
+    public let api: String
+    public let seconds: Int
+    public let date: String
+    public let schoolName: String
+    public let action: APIAction
+    public let status: APIStatus
     /// The download URL for the backup zip. Empty when status is not `.okay`.
-    let url: String
+    public let url: String
 
     enum CodingKeys: String, CodingKey {
         case source, api, seconds, date, action, status, url
@@ -506,19 +457,43 @@ struct GetBackupURLResponse: Decodable {
 
 /// The JSON payload sent as `jsondata` in the `createmarkbook` POST call.
 /// Class and student keys are local to this payload and may start from 1.
-struct CreateMarkbookRequest: Encodable {
-    let api: String
-    let schoolName: String
-    let action: APIAction
-    let markbookName: String
-    let markbookYear: String
-    let markbookCourse: String
+public struct CreateMarkbookRequest: Encodable, Sendable {
+    public let api: String
+    public let schoolName: String
+    public let action: APIAction
+    public let markbookName: String
+    public let markbookYear: String
+    public let markbookCourse: String
     /// Must match a key returned by `userlist`.
-    let ownerKey: Int
+    public let ownerKey: Int
     /// Keys of users to share the markbook with. Must exist in `userlist`.
-    let shareList: [Int]
-    let classList: [NewMarkbookClass]
-    let studentList: [NewMarkbookStudent]
+    public let shareList: [Int]
+    public let classList: [NewMarkbookClass]
+    public let studentList: [NewMarkbookStudent]
+
+    public init(
+        api: String,
+        schoolName: String,
+        action: APIAction,
+        markbookName: String,
+        markbookYear: String,
+        markbookCourse: String,
+        ownerKey: Int,
+        shareList: [Int],
+        classList: [NewMarkbookClass],
+        studentList: [NewMarkbookStudent]
+    ) {
+        self.api = api
+        self.schoolName = schoolName
+        self.action = action
+        self.markbookName = markbookName
+        self.markbookYear = markbookYear
+        self.markbookCourse = markbookCourse
+        self.ownerKey = ownerKey
+        self.shareList = shareList
+        self.classList = classList
+        self.studentList = studentList
+    }
 
     enum CodingKeys: String, CodingKey {
         case api, action
@@ -534,12 +509,19 @@ struct CreateMarkbookRequest: Encodable {
 }
 
 /// A class definition inside a `createmarkbook` payload.
-struct NewMarkbookClass: Codable {
+public struct NewMarkbookClass: Codable, Sendable {
     /// Local key (unique within this request, may start from 1).
-    let key: Int
-    let name: String
-    let teacherName1: String
-    let teacherName2: String
+    public let key: Int
+    public let name: String
+    public let teacherName1: String
+    public let teacherName2: String
+
+    public init(key: Int, name: String, teacherName1: String, teacherName2: String) {
+        self.key = key
+        self.name = name
+        self.teacherName1 = teacherName1
+        self.teacherName2 = teacherName2
+    }
 
     enum CodingKeys: String, CodingKey {
         case key, name
@@ -549,31 +531,80 @@ struct NewMarkbookClass: Codable {
 }
 
 /// A student definition inside a `createmarkbook` payload.
-struct NewMarkbookStudent: Codable {
+public struct NewMarkbookStudent: Codable, Sendable {
     /// Local key (unique within this request, may start from 1).
-    let key: Int
+    public let key: Int
     /// Must be non-empty; used as the student's permanent identifier.
-    let studentID: String
-    let familyName: String
-    let givenName: String
-    let preferredName: String
+    public let studentID: String
+    public let familyName: String
+    public let givenName: String
+    public let preferredName: String
     /// Must match a `key` in the accompanying `classList`.
-    let classKey: Int
+    public let classKey: Int
     /// Human-readable class name. Not validated by the API; `classKey` is authoritative.
-    let className: String
+    public let className: String
+
+    public init(
+        key: Int,
+        studentID: String,
+        familyName: String,
+        givenName: String,
+        preferredName: String,
+        classKey: Int,
+        className: String
+    ) {
+        self.key = key
+        self.studentID = studentID
+        self.familyName = familyName
+        self.givenName = givenName
+        self.preferredName = preferredName
+        self.classKey = classKey
+        self.className = className
+    }
 
     enum CodingKeys: String, CodingKey {
         case key
-        case studentID   = "studentid"
-        case familyName  = "familyname"
-        case givenName   = "givename"
+        case studentID     = "studentid"
+        case familyName    = "familyname"
+        case givenName     = "givename"
         case preferredName = "preferredname"
-        case classKey    = "classkey"
-        case className   = "classname"
+        case classKey      = "classkey"
+        case className     = "classname"
     }
 }
 
-struct CreateMarkbookResponse: Decodable {
+public struct CreateMarkbookResponse: Decodable, Sendable {
+    public let source: String
+    public let api: String
+    public let seconds: Int
+    public let date: String
+    public let schoolName: String
+    public let action: APIAction
+    public let status: APIStatus
+    /// Key of the newly created markbook.
+    public let markbookKey: Int
+    /// Actual name used (may have a "-1" suffix if the requested name was already taken).
+    public let markbookName: String
+    public let classCount: Int
+    public let studentCount: Int
+    public let shareCount: Int
+
+    enum CodingKeys: String, CodingKey {
+        case source, api, seconds, date, action, status
+        case schoolName   = "schoolname"
+        case markbookKey  = "markbookkey"
+        case markbookName = "markbookname"
+        case classCount   = "classcount"
+        case studentCount = "studentcount"
+        case shareCount   = "sharecount"
+    }
+}
+
+// MARK: - Internal: Authentication
+// These types are used exclusively inside MarkbookAPIClient and are not part of
+// the public API surface. Consumers never construct or inspect them directly.
+
+struct AuthenticationResponse: Decodable {
     let source: String
     let api: String
     let seconds: Int
@@ -581,21 +612,20 @@ struct CreateMarkbookResponse: Decodable {
     let schoolName: String
     let action: APIAction
     let status: APIStatus
-    /// Key of the newly created markbook.
-    let markbookKey: Int
-    /// Actual name used (may have a "-1" suffix if the requested name was already taken).
-    let markbookName: String
-    let classCount: Int
-    let studentCount: Int
-    let shareCount: Int
+    let sessionToken: String
+    let sessionKey: Int
 
     enum CodingKeys: String, CodingKey {
         case source, api, seconds, date, action, status
-        case schoolName    = "schoolname"
-        case markbookKey   = "markbookkey"
-        case markbookName  = "markbookname"
-        case classCount    = "classcount"
-        case studentCount  = "studentcount"
-        case shareCount    = "sharecount"
+        case schoolName   = "schoolname"
+        case sessionToken = "sessiontoken"
+        case sessionKey   = "sessionkey"
     }
+}
+
+/// Bundles the session credentials needed for every API call after authentication.
+struct SessionCredentials {
+    let sessionToken: String
+    let sessionKey: Int
+    let apiKey: String
 }
