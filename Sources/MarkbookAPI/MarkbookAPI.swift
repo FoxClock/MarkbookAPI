@@ -176,7 +176,7 @@ public actor MarkbookAPIClient: MarkbookAPIClientProtocol {
     public func getMarkbook(key: Int) async throws -> GetMarkbookResponse {
         try await get(queryItems: [
             .init(name: "action", value: APIAction.getMarkbook.rawValue),
-            .init(name: "key", value: String(key))
+            .init(name: "key", value: String(key)),
         ])
     }
 
@@ -185,7 +185,7 @@ public actor MarkbookAPIClient: MarkbookAPIClientProtocol {
     public func getMarkbookAlt(key: Int) async throws -> GetMarkbookAltResponse {
         try await get(queryItems: [
             .init(name: "action", value: APIAction.getMarkbookAlt.rawValue),
-            .init(name: "key", value: String(key))
+            .init(name: "key", value: String(key)),
         ])
     }
 
@@ -194,7 +194,7 @@ public actor MarkbookAPIClient: MarkbookAPIClientProtocol {
     public func getOutcomes(key: Int) async throws -> GetOutcomesResponse {
         try await get(queryItems: [
             .init(name: "action", value: APIAction.getOutcomes.rawValue),
-            .init(name: "key", value: String(key))
+            .init(name: "key", value: String(key)),
         ])
     }
 
@@ -203,7 +203,7 @@ public actor MarkbookAPIClient: MarkbookAPIClientProtocol {
     public func getOutcomesAlt(key: Int) async throws -> GetOutcomesAltResponse {
         try await get(queryItems: [
             .init(name: "action", value: APIAction.getOutcomesAlt.rawValue),
-            .init(name: "key", value: String(key))
+            .init(name: "key", value: String(key)),
         ])
     }
 
@@ -231,7 +231,7 @@ public actor MarkbookAPIClient: MarkbookAPIClientProtocol {
             .init(name: "sid", value: sid),
             .init(name: "taskkey", value: String(taskKey)),
             .init(name: "taskname", value: taskName),
-            .init(name: "result", value: result)
+            .init(name: "result", value: result),
         ])
         guard response.status.isOkay else {
             throw MarkbookAPIError.apiError(response.status)
@@ -266,7 +266,7 @@ public actor MarkbookAPIClient: MarkbookAPIClientProtocol {
             .init(name: "given", value: givenName),
             .init(name: "preferred", value: preferredName),
             .init(name: "gender", value: gender.rawValue),
-            .init(name: "classkey", value: String(classKey))
+            .init(name: "classkey", value: String(classKey)),
         ])
     }
 
@@ -298,7 +298,7 @@ public actor MarkbookAPIClient: MarkbookAPIClientProtocol {
             .init(name: "family", value: familyName),
             .init(name: "given", value: givenName),
             .init(name: "preferred", value: preferredName),
-            .init(name: "gender", value: gender.rawValue)
+            .init(name: "gender", value: gender.rawValue),
         ])
         guard response.status.isOkay else {
             throw MarkbookAPIError.apiError(response.status)
@@ -324,7 +324,7 @@ public actor MarkbookAPIClient: MarkbookAPIClientProtocol {
             .init(name: "key", value: String(markbookKey)),
             .init(name: "studentkey", value: String(studentKey)),
             .init(name: "sid", value: sid),
-            .init(name: "classkey", value: String(classKey))
+            .init(name: "classkey", value: String(classKey)),
         ])
         guard response.status.isOkay else {
             throw MarkbookAPIError.apiError(response.status)
@@ -348,7 +348,7 @@ public actor MarkbookAPIClient: MarkbookAPIClientProtocol {
             .init(name: "action", value: APIAction.deleteStudent.rawValue),
             .init(name: "key", value: String(markbookKey)),
             .init(name: "studentkey", value: String(studentKey)),
-            .init(name: "sid", value: sid)
+            .init(name: "sid", value: sid),
         ])
         guard response.status.isOkay else {
             throw MarkbookAPIError.apiError(response.status)
@@ -374,7 +374,7 @@ public actor MarkbookAPIClient: MarkbookAPIClientProtocol {
             .init(name: "key", value: String(markbookKey)),
             .init(name: "name", value: name),
             .init(name: "family", value: teacherFamilyName),
-            .init(name: "given", value: teacherGivenName)
+            .init(name: "given", value: teacherGivenName),
         ])
     }
 
@@ -389,7 +389,7 @@ public actor MarkbookAPIClient: MarkbookAPIClientProtocol {
         }
         let response: StatusOnlyResponse = try await get(queryItems: [
             .init(name: "action", value: APIAction.scheduleBackup.rawValue),
-            .init(name: "matching", value: matching)
+            .init(name: "matching", value: matching),
         ])
         guard response.status.isOkay else {
             throw MarkbookAPIError.apiError(response.status)
@@ -415,7 +415,9 @@ public actor MarkbookAPIClient: MarkbookAPIClientProtocol {
     /// - Parameter request: The fully populated ``CreateMarkbookRequest``.
     ///   Build it with the local class/student keys starting from 1.
     /// - Returns: The response containing the new markbook key and actual name used.
-    public func createMarkbook(_ request: CreateMarkbookRequest) async throws -> CreateMarkbookResponse {
+    public func createMarkbook(_ request: CreateMarkbookRequest) async throws
+        -> CreateMarkbookResponse
+    {
         try await post(action: APIAction.createMarkbook.rawValue, body: request)
     }
 
@@ -450,7 +452,7 @@ public actor MarkbookAPIClient: MarkbookAPIClientProtocol {
         var components = URLComponents()
         components.queryItems = [
             .init(name: "apiuser", value: username),
-            .init(name: "apipassword", value: password)
+            .init(name: "apipassword", value: password),
         ]
         guard let body = components.query?.data(using: .utf8) else {
             throw MarkbookAPIError.invalidURL
@@ -478,7 +480,7 @@ public actor MarkbookAPIClient: MarkbookAPIClientProtocol {
         allItems.append(contentsOf: [
             .init(name: "sessiontoken", value: credentials.sessionToken),
             .init(name: "sessionkey", value: String(credentials.sessionKey)),
-            .init(name: "apikey", value: credentials.apiKey)
+            .init(name: "apikey", value: credentials.apiKey),
         ])
 
         var components = URLComponents(url: baseURL, resolvingAgainstBaseURL: false)
@@ -509,7 +511,7 @@ public actor MarkbookAPIClient: MarkbookAPIClientProtocol {
             .init(name: "sessiontoken", value: credentials.sessionToken),
             .init(name: "sessionkey", value: String(credentials.sessionKey)),
             .init(name: "apiaction", value: action),
-            .init(name: "jsondata", value: jsonString)
+            .init(name: "jsondata", value: jsonString),
         ]
         guard let formBody = components.query?.data(using: .utf8) else {
             throw MarkbookAPIError.invalidURL
@@ -529,7 +531,8 @@ public actor MarkbookAPIClient: MarkbookAPIClientProtocol {
         let (data, response) = try await urlSession.data(for: request)
 
         if let httpResponse = response as? HTTPURLResponse,
-           !(200..<300).contains(httpResponse.statusCode) {
+            !(200..<300).contains(httpResponse.statusCode)
+        {
             throw MarkbookAPIError.httpError(statusCode: httpResponse.statusCode)
         }
 
